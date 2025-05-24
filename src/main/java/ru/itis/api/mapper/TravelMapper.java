@@ -20,4 +20,6 @@ public interface TravelMapper {
     TravelParticipantsDto mapToTravelParticipantsDto(Travel travel);
 
     TravelDto mapToTravelDto(Travel travel);
+
+    Travel mapToTravel(TravelDto travelDto);
 }

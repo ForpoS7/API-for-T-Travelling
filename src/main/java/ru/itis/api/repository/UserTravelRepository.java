@@ -5,15 +5,11 @@ import org.springframework.data.jpa.repository.Modifying;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
 import ru.itis.api.dto.UserDto;
-import ru.itis.api.entity.Travel;
 import ru.itis.api.entity.UserTravel;
 
 import java.util.List;
 
 public interface UserTravelRepository extends JpaRepository<UserTravel, Long> {
-    @Query("SELECT ut.travel FROM UserTravel ut WHERE ut.user.id = :userId AND ut.isConfirmed = true")
-    List<Travel> findConfirmedTravelsByUserId(@Param("userId") Long userId);
-
     @Query("""
     SELECT NEW ru.itis.api.dto.UserDto(
         u.user.phoneNumber,
@@ -27,17 +23,11 @@ public interface UserTravelRepository extends JpaRepository<UserTravel, Long> {
 
     @Modifying
     @Query("UPDATE UserTravel ut " +
-            "SET ut.isConfirmed = true " +
+            "SET ut.isConfirmed = :isConfirm " +
             "WHERE ut.user.id = :userId AND ut.travel.id = :travelId")
-    int updateConfirmStatusTrue(@Param("userId") Long userId,
-                                @Param("travelId") Long travelId);
-
-    @Modifying
-    @Query("UPDATE UserTravel ut " +
-            "SET ut.isConfirmed = false " +
-            "WHERE ut.user.id = :userId AND ut.travel.id = :travelId")
-    int updateConfirmStatusFalse(@Param("userId") Long userId,
-                                 @Param("travelId") Long travelId);
+    void updateConfirmStatus(@Param("userId") Long userId,
+                            @Param("travelId") Long travelId,
+                            Boolean isConfirm);
 
     @Modifying
     @Query("DELETE FROM UserTravel ut " +

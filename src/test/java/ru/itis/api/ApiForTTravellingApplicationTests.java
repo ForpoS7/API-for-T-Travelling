@@ -16,38 +16,10 @@ import java.sql.Statement;
 
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
-@SpringBootTest
-@Testcontainers
-class ApiForTTravellingApplicationTests {
-
-    @Container
-    public static PostgreSQLContainer<?> postgres = new PostgreSQLContainer<>("postgres:14")
-            .withDatabaseName("testdb")
-            .withUsername("testuser")
-            .withPassword("testpassword");
-
-    @DynamicPropertySource
-    static void configureProperties(DynamicPropertyRegistry registry) {
-        registry.add("spring.datasource.url", postgres::getJdbcUrl);
-        registry.add("spring.datasource.username", postgres::getUsername);
-        registry.add("spring.datasource.password", postgres::getPassword);
-    }
-
-    @Autowired
-    private DataSource dataSource;
+class ApiForTTravellingApplicationTests extends AbstractConfigurationTest {
 
     @Test
     void contextLoads() {
     }
 
-    @Test
-    void testDatabaseConnection() throws Exception {
-        try (Connection connection = dataSource.getConnection();
-             Statement statement = connection.createStatement();
-             ResultSet resultSet = statement.executeQuery("SELECT 1")) {
-
-            assertTrue(resultSet.next());
-            assertTrue(resultSet.getInt(1) == 1);
-        }
-    }
 }
