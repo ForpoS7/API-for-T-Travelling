@@ -11,16 +11,15 @@ import java.util.List;
 import java.util.Optional;
 
 public interface TravelRepository extends JpaRepository<Travel, Long> {
-    @Query("SELECT new ru.itis.api.dto.TravelDto(t.id, t.name, t.totalBudget, t.dateOfBegin, t.dateOfEnd) " +
+    @Query("SELECT t " +
             "FROM Travel t " +
-            "WHERE t.id IN :travelIds AND t.isActive = true")
-    List<TravelDto> findActiveTravelsByIds(@Param("travelIds") List<Long> travelIds);
-
-
-    @Query("SELECT new ru.itis.api.dto.TravelDto(t.id, t.name, t.totalBudget, t.dateOfBegin, t.dateOfEnd) " +
-            "FROM Travel t " +
-            "WHERE t.id IN :travelIds AND t.isActive = false")
-    List<TravelDto> findCompletedTravelsByIds(@Param("travelIds") List<Long> travelIds);
+            "JOIN UserTravel ut ON t.id = ut.travel.id " +
+            "WHERE ut.user.id = :userId " +
+            "AND ut.isConfirmed = :isConfirmed " +
+            "AND t.isActive = :isActive")
+    List<Travel> findTravelsByUserIdAndStatus(@Param("userId") Long userId,
+                                              @Param("isConfirmed") Boolean isConfirmed,
+                                              @Param("isActive") Boolean isActive);
 
     @Query("""
     SELECT new ru.itis.api.dto.TravelParticipantsDto(

@@ -35,19 +35,17 @@ public class TravelService {
     private final UserMapper userMapper;
 
     public List<TravelDto> getActiveTravels(Long userId) {
-        List<Travel> userTravels = userTravelRepository.findConfirmedTravelsByUserId(userId);
-        List<Long> travelIds = userTravels.stream()
-                .map(Travel::getId)
+        List<Travel> travels = travelRepository.findTravelsByUserIdAndStatus(userId, true, true);
+        return travels.stream()
+                .map(travelMapper::mapToTravelDto)
                 .toList();
-        return travelRepository.findActiveTravelsByIds(travelIds);
     }
 
     public List<TravelDto> getCompletedTravels(Long userId) {
-        List<Travel> userTravels = userTravelRepository.findConfirmedTravelsByUserId(userId);
-        List<Long> travelIds = userTravels.stream()
-                .map(Travel::getId)
+        List<Travel> travels = travelRepository.findTravelsByUserIdAndStatus(userId, true, false);
+        return travels.stream()
+                .map(travelMapper::mapToTravelDto)
                 .toList();
-        return travelRepository.findCompletedTravelsByIds(travelIds);
     }
 
     public TravelParticipantsDto getTravel(Long travelId) {
@@ -71,10 +69,10 @@ public class TravelService {
                 requestTravel.getParticipantPhones());
         participants.add(creator);
         participants.forEach(participant -> {
-            UserTravel userTravel = new UserTravel();
-            userTravel.setTravel(savedTravel);
-            userTravel.setUser(participant);
-            userTravel.setIsConfirmed(participant.getId().equals(creator.getId()));
+            UserTravel userTravel = new UserTravel()
+                    .setTravel(savedTravel)
+                    .setUser(participant)
+                    .setIsConfirmed(participant.getId().equals(creator.getId()));
             savedTravel.getUsers().add(userTravel);
         });
 
@@ -84,12 +82,7 @@ public class TravelService {
 
     @Transactional
     public void confirmTravel(Long userId, Long travelId) {
-        int updatedRows = userTravelRepository.updateConfirmStatusTrue(userId, travelId);
-        if (updatedRows == 0) {
-            throw new NotFoundException(
-                    "UserTravel not found for userId=" + userId + ", travelId=" + travelId
-            );
-        }
+        userTravelRepository.updateConfirmStatus(userId, travelId, true);
     }
 
     @Transactional
@@ -109,8 +102,9 @@ public class TravelService {
         if (optionalTravel.isEmpty()) {
             throw new NotFoundException("Travel not found");
         }
-        Travel travel = getModified(optionalTravel.get(), travelDto);
-        return travelMapper.mapToTravelDto(travel);
+        Travel travel = travelMapper.mapToTravel(travelDto);
+        travelRepository.save(travel);
+        return travelDto;
     }
 
     @Transactional
@@ -158,21 +152,21 @@ public class TravelService {
         return userMapper.mapToUserDto(user);
     }
 
-    private Travel getModified(Travel travel, TravelDto travelDto) {
-        if (!travel.getName().equals(travelDto.getName())) {
-            travel.setName(travelDto.getName());
-        }
-        if (!travel.getTotalBudget().equals(travelDto.getTotalBudget())) {
-            travel.setTotalBudget(travelDto.getTotalBudget());
-        }
-        if (!travel.getDateOfBegin().equals(travelDto.getDateOfBegin())) {
-            travel.setDateOfBegin(travelDto.getDateOfBegin());
-        }
-        if (!travel.getDateOfEnd().equals(travelDto.getDateOfEnd())) {
-            travel.setDateOfEnd(travelDto.getDateOfEnd());
-        }
-        return travel;
-    }
+//    private Travel getModified(Travel travel, TravelDto travelDto) {
+//        if (!travel.getName().equals(travelDto.getName())) {
+//            travel.setName(travelDto.getName());
+//        }
+//        if (!travel.getTotalBudget().equals(travelDto.getTotalBudget())) {
+//            travel.setTotalBudget(travelDto.getTotalBudget());
+//        }
+//        if (!travel.getDateOfBegin().equals(travelDto.getDateOfBegin())) {
+//            travel.setDateOfBegin(travelDto.getDateOfBegin());
+//        }
+//        if (!travel.getDateOfEnd().equals(travelDto.getDateOfEnd())) {
+//            travel.setDateOfEnd(travelDto.getDateOfEnd());
+//        }
+//        return travel;
+//    }
 
     private boolean isCreator(Long travelId, Long creatorId) {
         return travelRepository.existsTravelByIdAndCreatorId(travelId, creatorId);
