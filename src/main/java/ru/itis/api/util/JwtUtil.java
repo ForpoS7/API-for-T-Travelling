@@ -10,7 +10,8 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.security.authentication.BadCredentialsException;
 import org.springframework.stereotype.Service;
 import ru.itis.api.dto.JwtTokenPairDto;
-import ru.itis.api.repository.UserRepository;
+import ru.itis.api.entity.redis.RefreshToken;
+import ru.itis.api.repository.TokenRepository;
 
 import java.util.Date;
 import java.util.Optional;
@@ -31,7 +32,7 @@ public class JwtUtil {
 
     private final Algorithm algorithm;
     private final JWTVerifier jwtVerifier;
-    private final UserRepository userRepository;
+    private final TokenRepository tokenRepository;
 
     public JwtTokenPairDto getTokenPair(String phoneNumber) {
         return new JwtTokenPairDto(
@@ -67,7 +68,6 @@ public class JwtUtil {
         throw new BadCredentialsException("Token not found");
     }
 
-
     public String getPhoneNumber(String token) {
         return Optional.of(jwtVerifier.verify(token))
                 .map(jwt -> jwt.getClaim(PHONE_NUMBER_CLAIM))
@@ -75,7 +75,16 @@ public class JwtUtil {
                 .orElse(null);
     }
 
-    public void saveRefreshToken(String refreshToken, String phoneNumber) {
-        userRepository.updateRefreshToken(refreshToken, phoneNumber);
+    public void updateRefreshToken(String token, String phoneNumber) {
+        if(tokenRepository.findById(phoneNumber).isPresent()) {
+            RefreshToken refreshToken = tokenRepository.findById(phoneNumber).get();
+            refreshToken.setRawToken(token);
+            tokenRepository.save(refreshToken);
+        }
+        else {
+            RefreshToken refreshToken = new RefreshToken();
+            refreshToken.setId(phoneNumber).setRawToken(token);
+            tokenRepository.save(refreshToken);
+        }
     }
 }
