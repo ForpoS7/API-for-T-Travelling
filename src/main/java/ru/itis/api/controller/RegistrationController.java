@@ -8,6 +8,7 @@ import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
+import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.annotation.*;
@@ -32,11 +33,11 @@ public class RegistrationController {
             responses = {
                     @ApiResponse(responseCode = "201",
                             description = "User registered successfully",
-                            content = @Content(mediaType = "application/json",
+                            content = @Content(mediaType = MediaType.APPLICATION_JSON_VALUE,
                                     schema = @Schema(implementation = MessageDto.class))),
                     @ApiResponse(responseCode = "400",
                             description = "Invalid input data",
-                            content = @Content(mediaType = "application/json",
+                            content = @Content(mediaType = MediaType.APPLICATION_JSON_VALUE,
                                     schema = @Schema(implementation = MessageDto.class))),
             }
     )

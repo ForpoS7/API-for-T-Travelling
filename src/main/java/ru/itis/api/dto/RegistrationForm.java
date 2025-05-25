@@ -12,8 +12,7 @@ import lombok.experimental.Accessors;
 @Schema(description = "Data transfer object for user registration")
 public class RegistrationForm {
     @Pattern(regexp = "^8\\d{10}$", message = "The number must start with 8 and contain 11 digits.")
-    @NotBlank(message = "The number should not contain spaces")
-    @NotNull(message = "The number must not be empty")
+    @NotBlank(message = "The number is required")
     @Schema(description = "Phone number of the user. Must start with 8 and have 11 digits.", example = "89876543210")
     private String phoneNumber;
 
@@ -26,14 +25,12 @@ public class RegistrationForm {
     private String lastName;
 
     @Pattern(regexp = "^(?=.*[A-Z])(?=.*\\d)[A-Za-z\\d]{6,15}$", message = "The password must contain one uppercase letter and one number, and must be between 6 and 15 characters long.")
-    @NotBlank(message = "The password should not contain spaces")
-    @NotNull(message = "The password must not be empty")
+    @NotBlank(message = "The password is required")
     @Schema(description = "Password for the user account", example = "Password123")
     private String password;
 
     @Pattern(regexp = "^(?=.*[A-Z])(?=.*\\d)[A-Za-z\\d]{6,15}$", message = "The password must contain one uppercase letter and one number, and must be between 6 and 15 characters long.")
-    @NotBlank(message = "The password should not contain spaces")
-    @NotNull(message = "The password must not be empty")
+    @NotBlank(message = "The password is required")
     @Schema(description = "Password confirmation field")
     private String confirmPassword;
 }

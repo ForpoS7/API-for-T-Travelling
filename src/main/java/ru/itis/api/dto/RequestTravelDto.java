@@ -7,6 +7,7 @@ import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
+import java.math.BigDecimal;
 import java.time.LocalDate;
 import java.util.List;
 
@@ -17,7 +18,7 @@ public class RequestTravelDto {
     @NotNull(message = "Name cannot be null")
     private String name;
     @Min(value = 0, message = "Total budget must be positive")
-    private Double totalBudget;
+    private BigDecimal totalBudget;
     @FutureOrPresent(message = "Date of begin must be in the present or future")
     private LocalDate dateOfBegin;
     @Future(message = "Date of end must be in the future")
