@@ -15,6 +15,7 @@ import ru.itis.api.repository.TravelRepository;
 import ru.itis.api.repository.UserRepository;
 import ru.itis.api.repository.UserTravelRepository;
 
+import java.math.BigDecimal;
 import java.time.LocalDate;
 import java.util.List;
 import java.util.Optional;
@@ -64,7 +65,7 @@ class TravelServiceTest extends AbstractConfigurationTest {
 
         RequestTravelDto requestTravelDto = new RequestTravelDto();
         requestTravelDto.setName("Test Travel");
-        requestTravelDto.setTotalBudget(1000.0);
+        requestTravelDto.setTotalBudget(BigDecimal.valueOf(1000.0));
         requestTravelDto.setDateOfBegin(LocalDate.now());
         requestTravelDto.setDateOfEnd(LocalDate.now().plusDays(5));
         requestTravelDto.setParticipantPhones(List.of("81234567890"));
