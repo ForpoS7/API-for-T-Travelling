@@ -207,7 +207,7 @@ public class TravelController {
             description = "Successful update of the travel",
             content = @Content(
                     mediaType = MediaType.APPLICATION_JSON_VALUE,
-                    schema = @Schema(implementation = TravelDto.class)))
+                    schema = @Schema(implementation = RequestTravelParticipantsDto.class)))
     @ApiResponse(responseCode = "400",
             description = "Bad Request - Invalid input data",
             content = @Content(mediaType = MediaType.APPLICATION_JSON_VALUE,
@@ -235,9 +235,9 @@ public class TravelController {
                     schema = @Schema(implementation = MessageDto.class),
                     examples = @ExampleObject(value = "{\"message\": \"Travel not found\"}")))
     @PutMapping("/travels")
-    public ResponseEntity<TravelDto> updateTravel(@Valid @RequestBody TravelDto travelDto,
+    public ResponseEntity<RequestTravelParticipantsDto> updateTravel(@Valid @RequestBody RequestTravelParticipantsDto requestTravelParticipantsDto,
                                                   @AuthenticationPrincipal UserDetailsImpl curUserDetails) {
-        TravelDto updatedTravelDto = travelService.updateTravel(travelDto,
+        RequestTravelParticipantsDto updatedTravelDto = travelService.updateTravel(requestTravelParticipantsDto,
                 curUserDetails.getUser().getId());
         return ResponseEntity
                 .status(HttpStatus.OK)
@@ -341,54 +341,6 @@ public class TravelController {
         travelService.leaveTravel(travelId,
                 curUserDetails.getUser().getId());
         return ResponseEntity.ok().build();
-    }
-
-
-    @Operation(summary = "Add a participant to a travel",
-            description = "Adds a participant to a specific travel using their phone number. "
-                    + "The method requires authentication and validates that the authenticated user is the creator of the travel.")
-    @ApiResponse(
-            responseCode = "200",
-            description = "Successful addition of the participant",
-            content = @Content(
-                    mediaType = MediaType.APPLICATION_JSON_VALUE,
-                    schema = @Schema(implementation = UserDto.class)))
-    @ApiResponse(responseCode = "400",
-            description = "Bad Request - Invalid phone number format",
-            content = @Content(mediaType = MediaType.APPLICATION_JSON_VALUE,
-                    schema = @Schema(implementation = ErrorResponse.class),
-                    examples = @ExampleObject(value = "{ \"timestamp\": \"2025-05-16T19:09:03.280+00:00\"," +
-                            " \"status\": 400," +
-                            " \"error\": \"Bad Request\"," +
-                            " \"path\": \"/api/v1/travels/add/1\" }")))
-    @ApiResponse(responseCode = "409",
-            description = "Conflict - The participant already exists in the travel",
-            content = @Content(
-                    mediaType = MediaType.APPLICATION_JSON_VALUE,
-                    schema = @Schema(implementation = MessageDto.class),
-                    examples = @ExampleObject(value = "{\"message\": \"Participant already exists in the travel\"}")))
-    @ApiResponse(responseCode = "401",
-            description = "Unauthorized - User is not authenticated",
-            content = @Content(
-                    mediaType = MediaType.APPLICATION_JSON_VALUE,
-                    schema = @Schema(implementation = MessageDto.class),
-                    examples = @ExampleObject(value = "{\"message\": \"Unauthorized\"}")))
-    @ApiResponse(responseCode = "403",
-            description = "Forbidden - The user does not have permission to add a participant",
-            content = @Content(
-                    mediaType = MediaType.APPLICATION_JSON_VALUE,
-                    schema = @Schema(implementation = MessageDto.class),
-                    examples = @ExampleObject(value = "{\"message\": \"The user does not have permission to perform this action\"}")))
-    @PostMapping("/travels/add/{travelId}")
-    public ResponseEntity<UserDto> addParticipant(@Valid @RequestBody RequestParticipantDto requestParticipantDto,
-                                                  @PathVariable Long travelId,
-                                                  @AuthenticationPrincipal UserDetailsImpl curUserDetails) {
-        UserDto userDto = travelService.addParticipant(travelId,
-                requestParticipantDto.getPhoneNumber(),
-                curUserDetails.getUser().getId());
-        return ResponseEntity
-                .status(HttpStatus.OK)
-                .body(userDto);
     }
 
     @ExceptionHandler(OperationNotAllowedForOwnerException.class)
