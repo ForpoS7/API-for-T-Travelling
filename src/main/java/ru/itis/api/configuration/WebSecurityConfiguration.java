@@ -44,7 +44,9 @@ public class WebSecurityConfiguration {
             throws Exception {
         HttpSecurity httpSecurity = http.securityMatcher("/api/**")
                 .authorizeHttpRequests(authorize -> authorize
-                        .requestMatchers("/api/v1/registration", "/swagger-ui/**", "/v3/api-docs/**").permitAll()
+                        .requestMatchers("/api/v1/registration",
+                                "/swagger-ui/**",
+                                "/v3/api-docs/**").permitAll()
                         .anyRequest().authenticated())
                 .csrf(AbstractHttpConfigurer::disable)
                 .sessionManagement(AbstractHttpConfigurer::disable)
@@ -86,7 +88,7 @@ public class WebSecurityConfiguration {
             AuthenticationFailureHandler failureHandler) {
         SkipPathRequestMatcher requestMatcher = new SkipPathRequestMatcher(
                 "/api/v1/login",
-                "/api/v1/refresh" ,
+                "/api/v1/refresh",
                 "/api/v1/registration",
                 "/swagger-ui/**",
                 "/v3/api-docs/**");

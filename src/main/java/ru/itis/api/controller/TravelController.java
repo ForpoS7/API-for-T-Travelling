@@ -1,4 +1,4 @@
-package ru.itis.api.web.controller.api;
+package ru.itis.api.controller;
 
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
