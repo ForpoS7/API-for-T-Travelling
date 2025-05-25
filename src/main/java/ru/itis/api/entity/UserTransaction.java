@@ -4,6 +4,8 @@ import jakarta.persistence.*;
 import lombok.*;
 import lombok.experimental.Accessors;
 
+import java.math.BigDecimal;
+
 @Entity
 @Getter
 @Setter
@@ -16,7 +18,7 @@ public class UserTransaction {
     private Long id;
 
     @Column(name="share_amount")
-    private Long shareAmount;
+    private BigDecimal shareAmount;
 
     @ManyToOne
     @JoinColumn(name = "user_id")

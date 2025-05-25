@@ -1,10 +1,10 @@
 package ru.itis.api.dto;
 
-import io.swagger.v3.oas.annotations.media.Content;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
+import java.math.BigDecimal;
 import java.time.LocalDate;
 import java.util.List;
 
@@ -12,15 +12,7 @@ import java.util.List;
 @AllArgsConstructor
 @NoArgsConstructor
 public class TravelParticipantsDto {
-    private Long id;
-    private String name;
-    private Double totalBudget;
-    private LocalDate dateOfBegin;
-    private LocalDate dateOfEnd;
-    private UserDto creator;
-    private List<UserDto> participants;
-
-    public TravelParticipantsDto(Long id, String name, Double totalBudget, LocalDate dateOfBegin,
+    public TravelParticipantsDto(Long id, String name, BigDecimal totalBudget, LocalDate dateOfBegin,
                                  LocalDate dateOfEnd, UserDto creator) {
         this.id = id;
         this.name = name;
@@ -29,4 +21,11 @@ public class TravelParticipantsDto {
         this.dateOfEnd = dateOfEnd;
         this.creator = creator;
     }
+    private Long id;
+    private String name;
+    private BigDecimal totalBudget;
+    private LocalDate dateOfBegin;
+    private LocalDate dateOfEnd;
+    private UserDto creator;
+    private List<UserDto> participants;
 }

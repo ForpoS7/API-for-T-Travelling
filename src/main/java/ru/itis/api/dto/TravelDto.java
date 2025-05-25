@@ -8,6 +8,7 @@ import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
+import java.math.BigDecimal;
 import java.time.LocalDate;
 
 @Data
@@ -15,10 +16,14 @@ import java.time.LocalDate;
 @NoArgsConstructor
 public class TravelDto {
     private Long id;
+  
     @NotNull(message = "Name cannot be null")
     private String name;
+  
     @Min(value = 0, message = "Total budget must be positive")
-    private Double totalBudget;
+    private BigDecimal totalBudget;
+  
+    @FutureOrPresent(message = "Date of begin must be in the present or future")
     private LocalDate dateOfBegin;
     private LocalDate dateOfEnd;
 }

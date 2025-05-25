@@ -4,6 +4,7 @@ import jakarta.persistence.*;
 import lombok.*;
 import lombok.experimental.Accessors;
 
+import java.math.BigDecimal;
 import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.List;
@@ -15,7 +16,6 @@ import java.util.List;
 @NoArgsConstructor
 @Accessors(chain = true)
 public class Travel {
-
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
@@ -24,7 +24,7 @@ public class Travel {
     private String name;
 
     @Column(name = "total_budget", nullable = false)
-    private Double totalBudget;
+    private BigDecimal totalBudget;
 
     @Column(name = "date_of_begin", nullable = false)
     @Temporal(TemporalType.DATE)
@@ -42,5 +42,4 @@ public class Travel {
     private User creator;
 
     private Boolean isActive;
-
 }

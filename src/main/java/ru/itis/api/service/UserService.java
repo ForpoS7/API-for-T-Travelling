@@ -30,24 +30,12 @@ public class UserService {
     public UpdateUserDto updateUser(UpdateUserDto updateUserDto, String phoneNumber) {
         User user = userRepository.findByPhoneNumber(phoneNumber).
                 orElseThrow(() -> new UserNotFoundException("User not found with phone number: " + phoneNumber));
-        if (!updateUserDto.getPassword().isEmpty()) {
-            if (!updateUserDto.getPassword().equals(updateUserDto.getConfirmPassword())) {
-                throw new PasswordDoNotMatchException("Password do not match");
-            }
-            user.setPassword(passwordEncoder.encode(updateUserDto.getPassword()));
+        if (userRepository.existsByPhoneNumber(updateUserDto.getPhoneNumber())){
+            throw new UserAlreadyExistException("Phone number already exist");
         }
-        if (!updateUserDto.getPhoneNumber().equals(phoneNumber)) {
-            if (userRepository.existsByPhoneNumber(updateUserDto.getPhoneNumber())){
-                throw new UserAlreadyExistException("Phone number already exist");
-            }
-            user.setPhoneNumber(updateUserDto.getPhoneNumber());
-        }
-        if (!updateUserDto.getFirstName().equals(user.getFirstName())) {
-            user.setFirstName(updateUserDto.getFirstName());
-        }
-        if (!updateUserDto.getLastName().equals(user.getLastName())) {
-            user.setLastName(updateUserDto.getLastName());
-        }
+        user.setPhoneNumber(updateUserDto.getPhoneNumber());
+        user.setFirstName(updateUserDto.getFirstName());
+        user.setLastName(updateUserDto.getLastName());
         userRepository.save(user);
         return updateUserDto;
     }
