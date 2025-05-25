@@ -19,8 +19,6 @@ public class TravelDto {
     private String name;
     @Min(value = 0, message = "Total budget must be positive")
     private Double totalBudget;
-    @FutureOrPresent(message = "Date of begin must be in the present or future")
     private LocalDate dateOfBegin;
-    @Future(message = "Date of end must be in the future")
     private LocalDate dateOfEnd;
 }

@@ -2,21 +2,18 @@ package ru.itis.api.service;
 
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.access.AccessDeniedException;
-import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import ru.itis.api.dto.RequestTravelDto;
+import ru.itis.api.dto.RequestTravelParticipantsDto;
 import ru.itis.api.dto.TravelDto;
 import ru.itis.api.dto.TravelParticipantsDto;
-import ru.itis.api.dto.UserDto;
 import ru.itis.api.entity.Travel;
 import ru.itis.api.entity.User;
 import ru.itis.api.entity.UserTravel;
 import ru.itis.api.exception.NotFoundException;
 import ru.itis.api.exception.OperationNotAllowedForOwnerException;
-import ru.itis.api.exception.UserAlreadyExistException;
 import ru.itis.api.mapper.TravelMapper;
-import ru.itis.api.mapper.UserMapper;
 import ru.itis.api.repository.TravelRepository;
 import ru.itis.api.repository.UserRepository;
 import ru.itis.api.repository.UserTravelRepository;
@@ -32,7 +29,6 @@ public class TravelService {
     private final TravelRepository travelRepository;
     private final UserTravelRepository userTravelRepository;
     private final TravelMapper travelMapper;
-    private final UserMapper userMapper;
 
     public List<TravelDto> getActiveTravels(Long userId) {
         List<Travel> travels = travelRepository.findTravelsByUserIdAndStatus(userId, true, true);
@@ -94,17 +90,41 @@ public class TravelService {
     }
 
     @Transactional
-    public TravelDto updateTravel(TravelDto travelDto, Long userId) {
-        if (!isCreator(travelDto.getId(), userId)) {
+    public RequestTravelParticipantsDto updateTravel(RequestTravelParticipantsDto requestTravelParticipantsDto, Long userId) {
+        if (!isCreator(requestTravelParticipantsDto.getId(), userId)) {
             throw new AccessDeniedException("The user does not have permission to perform this action");
         }
-        Optional<Travel> optionalTravel = travelRepository.findById(travelDto.getId());
+        Optional<Travel> optionalTravel = travelRepository.findById(requestTravelParticipantsDto.getId());
         if (optionalTravel.isEmpty()) {
             throw new NotFoundException("Travel not found");
         }
-        Travel travel = travelMapper.mapToTravel(travelDto);
-        travelRepository.save(travel);
-        return travelDto;
+
+        Travel existingTravel = optionalTravel.get();
+        List<String> newPhoneNumbers = requestTravelParticipantsDto.getParticipantPhones()
+                .stream()
+                .filter(phoneNumber -> existingTravel.getUsers()
+                        .stream()
+                        .noneMatch(userTravel -> userTravel.getUser().getPhoneNumber().equals(phoneNumber)))
+                .toList();
+
+        List<User> invitedUsers = userRepository.findAllByPhoneNumbers(newPhoneNumbers);
+        Travel updatedTravel = travelMapper.mapToTravel(requestTravelParticipantsDto);
+        updatedTravel.setCreator(existingTravel.getCreator());
+        updatedTravel.setIsActive(existingTravel.getIsActive());
+        invitedUsers.forEach(user -> {
+            UserTravel userTravel = new UserTravel()
+                    .setUser(user)
+                    .setTravel(updatedTravel)
+                    .setIsConfirmed(false);
+            updatedTravel.getUsers().add(userTravel);
+        });
+        travelRepository.save(updatedTravel);
+
+        return requestTravelParticipantsDto.setParticipantPhones(
+                invitedUsers.stream()
+                        .map(User::getPhoneNumber)
+                        .toList()
+        );
     }
 
     @Transactional
@@ -133,40 +153,6 @@ public class TravelService {
         }
         userTravelRepository.deleteByUserIdAndTravelId(travelId, userId);
     }
-
-    @Transactional
-    public UserDto addParticipant(Long travelId, String phoneNumber, Long userId) {
-        if (!isCreator(travelId, userId)) {
-            throw new AccessDeniedException("The user does not have permission to perform this action");
-        }
-        User user = userRepository.findByPhoneNumber(phoneNumber).
-                orElseThrow(() -> new UsernameNotFoundException("User not found with phone number: " + phoneNumber));
-        if (userTravelRepository.existsByUserIdAndTravelId(travelId, user.getId())) {
-            throw new UserAlreadyExistException("Participant already exist in the travel");
-        }
-        UserTravel userTravel = new UserTravel();
-        userTravel.setTravel(travelRepository.getReferenceById(travelId));
-        userTravel.setUser(user);
-        userTravel.setIsConfirmed(false);
-        userTravelRepository.save(userTravel);
-        return userMapper.mapToUserDto(user);
-    }
-
-//    private Travel getModified(Travel travel, TravelDto travelDto) {
-//        if (!travel.getName().equals(travelDto.getName())) {
-//            travel.setName(travelDto.getName());
-//        }
-//        if (!travel.getTotalBudget().equals(travelDto.getTotalBudget())) {
-//            travel.setTotalBudget(travelDto.getTotalBudget());
-//        }
-//        if (!travel.getDateOfBegin().equals(travelDto.getDateOfBegin())) {
-//            travel.setDateOfBegin(travelDto.getDateOfBegin());
-//        }
-//        if (!travel.getDateOfEnd().equals(travelDto.getDateOfEnd())) {
-//            travel.setDateOfEnd(travelDto.getDateOfEnd());
-//        }
-//        return travel;
-//    }
 
     private boolean isCreator(Long travelId, Long creatorId) {
         return travelRepository.existsTravelByIdAndCreatorId(travelId, creatorId);

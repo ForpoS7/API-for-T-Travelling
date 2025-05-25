@@ -6,6 +6,7 @@ import jakarta.validation.constraints.*;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
+import lombok.experimental.Accessors;
 
 import java.time.LocalDate;
 import java.util.List;
@@ -13,7 +14,10 @@ import java.util.List;
 @Data
 @AllArgsConstructor
 @NoArgsConstructor
-public class RequestTravelDto {
+@Accessors(chain = true)
+public class RequestTravelParticipantsDto {
+    @NotNull(message = "Id cannot be null")
+    private Long id;
     @NotNull(message = "Name cannot be null")
     private String name;
     @Min(value = 0, message = "Total budget must be positive")

@@ -3,6 +3,7 @@ package ru.itis.api.mapper;
 import org.mapstruct.Mapper;
 import org.mapstruct.Mapping;
 import ru.itis.api.dto.RequestTravelDto;
+import ru.itis.api.dto.RequestTravelParticipantsDto;
 import ru.itis.api.dto.TravelDto;
 import ru.itis.api.dto.TravelParticipantsDto;
 import ru.itis.api.entity.Travel;
@@ -22,4 +23,6 @@ public interface TravelMapper {
     TravelDto mapToTravelDto(Travel travel);
 
     Travel mapToTravel(TravelDto travelDto);
+
+    Travel mapToTravel(RequestTravelParticipantsDto requestTravelParticipantsDto);
 }
