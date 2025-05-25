@@ -26,7 +26,7 @@ public class LoginAuthenticationSuccessHandler implements AuthenticationSuccessH
     public void onAuthenticationSuccess(HttpServletRequest request, HttpServletResponse response, Authentication authentication) throws IOException, ServletException {
         String phoneNumber = ((UserDetails) authentication.getPrincipal()).getUsername();
         JwtTokenPairDto tokenPair = jwtUtil.getTokenPair(phoneNumber);
-        jwtUtil.saveRefreshToken(tokenPair.getRefreshToken(),phoneNumber);
+        jwtUtil.updateRefreshToken(tokenPair.getRefreshToken(),phoneNumber);
 
         response.setStatus(200);
         response.setContentType(MediaType.APPLICATION_JSON_VALUE);
