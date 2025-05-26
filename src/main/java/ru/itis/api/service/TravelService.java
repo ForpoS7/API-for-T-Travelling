@@ -51,7 +51,9 @@ public class TravelService {
         }
         TravelParticipantsDto travelParticipantsDto = optionalTravelDetails.get();
         travelParticipantsDto.setParticipants(
-                userTravelRepository.findUsersByTravelId(travelId));
+                userTravelRepository.findUsersByTravelIdWithoutCreator(travelId,
+                        travelParticipantsDto.getCreator().getPhoneNumber())
+        );
         return travelParticipantsDto;
     }
 
@@ -63,11 +65,12 @@ public class TravelService {
 
         List<User> participants = userRepository.findAllByPhoneNumbers(
                 requestTravel.getParticipantPhones());
+        participants.add(creator);
         participants.forEach(participant -> {
             UserTravel userTravel = new UserTravel()
                     .setTravel(savedTravel)
                     .setUser(participant)
-                    .setIsConfirmed(false);
+                    .setIsConfirmed(participant.getId().equals(creator.getId()));
             savedTravel.getUsers().add(userTravel);
         });
 

@@ -17,9 +17,9 @@ public interface UserTravelRepository extends JpaRepository<UserTravel, Long> {
         u.user.phoneNumber
     )
     FROM UserTravel u
-    WHERE u.travel.id = :travelId
+    WHERE u.travel.id = :travelId AND u.user.phoneNumber != :creatorPhoneNumber
     """)
-    List<UserDto> findUsersByTravelId(@Param("travelId") Long travelId);
+    List<UserDto> findUsersByTravelIdWithoutCreator(@Param("travelId") Long travelId, String creatorPhoneNumber);
 
     @Modifying
     @Query("UPDATE UserTravel ut " +

@@ -80,16 +80,19 @@ class TravelServiceTest extends AbstractConfigurationTest {
         assertEquals(travel.getTotalBudget(), travelParticipantsDto.getTotalBudget());
         assertEquals(travel.getDateOfBegin(), travelParticipantsDto.getDateOfBegin());
         assertEquals(travel.getDateOfEnd(), travelParticipantsDto.getDateOfEnd());
-        User savedCreator = travel.getCreator();
-        assertEquals(savedCreator.getPhoneNumber(), creator.getPhoneNumber());
-        assertEquals(savedCreator.getPassword(), creator.getPassword());
-        assertEquals(savedCreator.getFirstName(), creator.getFirstName());
-        assertEquals(savedCreator.getLastName(), creator.getLastName());
 
         List<UserTravel> travelParticipants = travel.getUsers();
+        assertNotNull(travelParticipants.get(1));
+        assertTrue(travelParticipants.get(1).getIsConfirmed());
         assertNotNull(travelParticipants.get(0));
         assertFalse(travelParticipants.get(0).getIsConfirmed());
+
+        User creatorUser = travelParticipants.get(1).getUser();
         User participantUser = travelParticipants.get(0).getUser();
+        assertEquals(creatorUser.getPhoneNumber(), creator.getPhoneNumber());
+        assertEquals(creatorUser.getPassword(), creator.getPassword());
+        assertEquals(creatorUser.getFirstName(), creator.getFirstName());
+        assertEquals(creatorUser.getLastName(), creator.getLastName());
         assertEquals(participantUser.getPhoneNumber(), participant.getPhoneNumber());
         assertEquals(participantUser.getPassword(), participant.getPassword());
         assertEquals(participantUser.getFirstName(), participant.getFirstName());
