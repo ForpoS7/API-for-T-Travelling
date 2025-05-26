@@ -7,6 +7,8 @@ import ru.itis.api.dictionary.Category;
 
 import java.math.BigDecimal;
 import java.time.LocalDateTime;
+import java.util.ArrayList;
+import java.util.List;
 
 @Entity
 @Getter
@@ -30,6 +32,13 @@ public class Transaction {
     @Column(nullable = false)
     @Enumerated(EnumType.STRING)
     private Category category;
+
+    @OneToMany(mappedBy = "transaction", cascade = CascadeType.ALL)
+    private List<UserTransaction> users;
+
+    @ManyToOne
+    @JoinColumn(name="travel_id")
+    private Travel travel;
 
     @ManyToOne
     @JoinColumn(name="creator_id")

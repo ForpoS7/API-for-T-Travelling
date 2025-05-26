@@ -8,6 +8,7 @@ import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
+import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.MethodArgumentNotValidException;
@@ -24,7 +25,7 @@ import ru.itis.api.service.UserService;
 @RestController
 @RequiredArgsConstructor
 @RequestMapping("/api/v1/profile")
-@Tag(name = "User Profile API",
+@Tag(name = "User Profile",
         description = "Operations related to user profile management")
 public class UserController {
 
@@ -37,7 +38,7 @@ public class UserController {
                             description = "Successfully retrieved user profile"),
                     @ApiResponse(responseCode = "400",
                             description = "User not found",
-                            content = @Content(mediaType = "application/json",
+                            content = @Content(mediaType = MediaType.APPLICATION_JSON_VALUE,
                                     schema = @Schema(implementation = MessageDto.class))),
                     @ApiResponse(responseCode = "401",
                             description = "Unauthorized access - missing or invalid token")
@@ -58,7 +59,7 @@ public class UserController {
                             description = "Profile successfully updated"),
                     @ApiResponse(responseCode = "400",
                             description = "Validation error or password mismatch",
-                            content = @Content(mediaType = "application/json",
+                            content = @Content(mediaType = MediaType.APPLICATION_JSON_VALUE,
                                     schema = @Schema(implementation = MessageDto.class))),
                     @ApiResponse(responseCode = "401",
                             description = "Unauthorized access - missing or invalid token"),
