@@ -63,12 +63,11 @@ public class TravelService {
 
         List<User> participants = userRepository.findAllByPhoneNumbers(
                 requestTravel.getParticipantPhones());
-        participants.add(creator);
         participants.forEach(participant -> {
             UserTravel userTravel = new UserTravel()
                     .setTravel(savedTravel)
                     .setUser(participant)
-                    .setIsConfirmed(participant.getId().equals(creator.getId()));
+                    .setIsConfirmed(false);
             savedTravel.getUsers().add(userTravel);
         });
 

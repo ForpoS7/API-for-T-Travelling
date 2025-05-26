@@ -8,6 +8,7 @@ import lombok.Data;
 import lombok.NoArgsConstructor;
 import lombok.experimental.Accessors;
 
+import java.math.BigDecimal;
 import java.time.LocalDate;
 import java.util.List;
 
@@ -21,7 +22,7 @@ public class RequestTravelParticipantsDto {
     @NotNull(message = "Name cannot be null")
     private String name;
     @Min(value = 0, message = "Total budget must be positive")
-    private Double totalBudget;
+    private BigDecimal totalBudget;
     private LocalDate dateOfBegin;
     private LocalDate dateOfEnd;
     @Valid

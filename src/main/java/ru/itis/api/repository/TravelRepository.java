@@ -29,9 +29,9 @@ public interface TravelRepository extends JpaRepository<Travel, Long> {
         t.dateOfBegin,
         t.dateOfEnd,
         NEW ru.itis.api.dto.UserDto(
-            t.creator.phoneNumber,
             t.creator.firstName,
-            t.creator.lastName
+            t.creator.lastName,
+            t.creator.phoneNumber
         )
     )
     FROM Travel t

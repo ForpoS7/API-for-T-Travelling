@@ -12,9 +12,9 @@ import java.util.List;
 public interface UserTravelRepository extends JpaRepository<UserTravel, Long> {
     @Query("""
     SELECT NEW ru.itis.api.dto.UserDto(
-        u.user.phoneNumber,
         u.user.firstName,
-        u.user.lastName
+        u.user.lastName,
+        u.user.phoneNumber
     )
     FROM UserTravel u
     WHERE u.travel.id = :travelId
