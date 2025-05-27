@@ -1,6 +1,7 @@
 package ru.itis.api.controller;
 
 
+import io.swagger.v3.oas.annotations.Hidden;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.AccessDeniedException;
@@ -10,6 +11,7 @@ import org.springframework.web.bind.annotation.RestControllerAdvice;
 import ru.itis.api.dto.MessageDto;
 import ru.itis.api.exception.*;
 
+@Hidden
 @RestControllerAdvice
 public class AdviceController {
 
