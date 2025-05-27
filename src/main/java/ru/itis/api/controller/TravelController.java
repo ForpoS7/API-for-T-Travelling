@@ -12,14 +12,10 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
-import org.springframework.security.access.AccessDeniedException;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.ErrorResponse;
 import org.springframework.web.bind.annotation.*;
 import ru.itis.api.dto.*;
-import ru.itis.api.exception.NotFoundException;
-import ru.itis.api.exception.OperationNotAllowedForOwnerException;
-import ru.itis.api.exception.UserAlreadyExistException;
 import ru.itis.api.security.details.UserDetailsImpl;
 import ru.itis.api.service.TravelService;
 

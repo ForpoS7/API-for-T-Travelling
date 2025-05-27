@@ -10,12 +10,9 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.annotation.*;
 import ru.itis.api.dto.MessageDto;
 import ru.itis.api.dto.RegistrationForm;
-import ru.itis.api.exception.PasswordDoNotMatchException;
-import ru.itis.api.exception.UserAlreadyExistException;
 import ru.itis.api.service.RegistrationService;
 
 @RestController
