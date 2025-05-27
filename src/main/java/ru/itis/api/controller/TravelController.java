@@ -23,7 +23,7 @@ import java.util.List;
 
 @RestController
 @RequiredArgsConstructor
-@RequestMapping("/api/v1/")
+@RequestMapping("/api/v1/travels")
 public class TravelController {
 
     private final TravelService travelService;
@@ -41,7 +41,7 @@ public class TravelController {
             content = @Content(mediaType = MediaType.APPLICATION_JSON_VALUE,
                     schema = @Schema(implementation = MessageDto.class),
                     examples = @ExampleObject(value = "{\"message\": \"Unauthorized\"}")))
-    @GetMapping("/travels/active")
+    @GetMapping("/active")
     public ResponseEntity<List<TravelDto>> getActiveTravels(@AuthenticationPrincipal UserDetailsImpl curUserDetails) {
         List<TravelDto> activeTravels = travelService.getActiveTravels(curUserDetails.getUser().getId());
         return ResponseEntity
@@ -64,7 +64,7 @@ public class TravelController {
                     mediaType = MediaType.APPLICATION_JSON_VALUE,
                     schema = @Schema(implementation = MessageDto.class),
                     examples = @ExampleObject(value = "{\"message\": \"Unauthorized\"}")))
-    @GetMapping("/travels/complete")
+    @GetMapping("/complete")
     public ResponseEntity<List<TravelDto>> getCompletedTravels(@AuthenticationPrincipal UserDetailsImpl curUserDetails) {
         List<TravelDto> completedTravels = travelService.getCompletedTravels(curUserDetails.getUser().getId());
         return ResponseEntity
@@ -90,7 +90,7 @@ public class TravelController {
             content = @Content(mediaType = MediaType.APPLICATION_JSON_VALUE,
                     schema = @Schema(implementation = MessageDto.class),
                     examples = @ExampleObject(value = "{\"message\": \"Travel not found\"}")))
-    @GetMapping("/travels/{travelId}")
+    @GetMapping("/{travelId}")
     public ResponseEntity<TravelParticipantsDto> getTravel(
             @Parameter(description = "Id of the travel to retrieve",
                     required = true,
@@ -129,7 +129,7 @@ public class TravelController {
                     mediaType = MediaType.APPLICATION_JSON_VALUE,
                     schema = @Schema(implementation = MessageDto.class),
                     examples = @ExampleObject(value = "{\"message\": \"Unauthorized\"}")))
-    @PostMapping("/travels/create")
+    @PostMapping("/create")
     public ResponseEntity<TravelParticipantsDto> createTravel(@Valid @RequestBody RequestTravelDto requestTravel,
                                                @AuthenticationPrincipal UserDetailsImpl curUserDetails) {
         TravelParticipantsDto travelParticipantsDto = travelService.saveTravel(requestTravel,
@@ -157,7 +157,7 @@ public class TravelController {
                     schema = @Schema(implementation = MessageDto.class),
                     examples = @ExampleObject(value = "{\"message\": " +
                             "\"UserTravel not found for userId=1, travelId=2\"}")))
-    @GetMapping("/travels/confirm/{travelId}")
+    @GetMapping("/confirm/{travelId}")
     public ResponseEntity<Void> confirmTravel(
             @Parameter(description = "Id of the travel to confirm participation",
                     required = true,
@@ -185,7 +185,7 @@ public class TravelController {
                     mediaType = MediaType.APPLICATION_JSON_VALUE,
                     schema = @Schema(implementation = MessageDto.class),
                     examples = @ExampleObject(value = "{\"message\": \"Creator cannot deny the travel\"}")))
-    @DeleteMapping("/travels/deny/{travelId}")
+    @DeleteMapping("/deny/{travelId}")
     public ResponseEntity<Void> denyTravel(
             @Parameter(description = "Id of the travel to deny participation",
                     required = true,
@@ -203,7 +203,7 @@ public class TravelController {
             description = "Successful update of the travel",
             content = @Content(
                     mediaType = MediaType.APPLICATION_JSON_VALUE,
-                    schema = @Schema(implementation = RequestTravelParticipantsDto.class)))
+                    schema = @Schema(implementation = TravelParticipantsDto.class)))
     @ApiResponse(responseCode = "400",
             description = "Bad Request - Invalid input data",
             content = @Content(mediaType = MediaType.APPLICATION_JSON_VALUE,
@@ -230,10 +230,10 @@ public class TravelController {
                     mediaType = MediaType.APPLICATION_JSON_VALUE,
                     schema = @Schema(implementation = MessageDto.class),
                     examples = @ExampleObject(value = "{\"message\": \"Travel not found\"}")))
-    @PutMapping("/travels")
-    public ResponseEntity<RequestTravelParticipantsDto> updateTravel(@Valid @RequestBody RequestTravelParticipantsDto requestTravelParticipantsDto,
+    @PutMapping
+    public ResponseEntity<TravelParticipantsDto> updateTravel(@Valid @RequestBody RequestTravelParticipantsDto requestTravelParticipantsDto,
                                                   @AuthenticationPrincipal UserDetailsImpl curUserDetails) {
-        RequestTravelParticipantsDto updatedTravelDto = travelService.updateTravel(requestTravelParticipantsDto,
+        TravelParticipantsDto updatedTravelDto = travelService.updateTravel(requestTravelParticipantsDto,
                 curUserDetails.getUser().getId());
         return ResponseEntity
                 .status(HttpStatus.OK)
@@ -257,7 +257,7 @@ public class TravelController {
                     mediaType = MediaType.APPLICATION_JSON_VALUE,
                     schema = @Schema(implementation = MessageDto.class),
                     examples = @ExampleObject(value = "{\"message\": \"The user does not have permission to perform this action\"}")))
-    @DeleteMapping("/travels/{travelId}")
+    @DeleteMapping("/{travelId}")
     public ResponseEntity<Void> deleteTravel(
             @Parameter(description = "Id of the travel to delete",
                     required = true,
@@ -293,7 +293,7 @@ public class TravelController {
                     mediaType = MediaType.APPLICATION_JSON_VALUE,
                     schema = @Schema(implementation = MessageDto.class),
                     examples = @ExampleObject(value = "{\"message\": \"Creator cannot remove himself from the travel\"}")))
-    @DeleteMapping("/travels/remove/{travelId}")
+    @DeleteMapping("/remove/{travelId}")
     public ResponseEntity<Void> deleteParticipant(
             @Parameter(description = "Id of the travel",
                     required = true,
@@ -327,7 +327,7 @@ public class TravelController {
                     mediaType = MediaType.APPLICATION_JSON_VALUE,
                     schema = @Schema(implementation = MessageDto.class),
                     examples = @ExampleObject(value = "{\"message\": \"Creator cannot leave from the travel\"}")))
-    @DeleteMapping("/travels/leave/{travelId}")
+    @DeleteMapping("/leave/{travelId}")
     public ResponseEntity<Void> leaveTravel(
             @Parameter(description = "Id of the travel to leave",
                     required = true,

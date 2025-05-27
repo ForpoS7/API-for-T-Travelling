@@ -92,7 +92,7 @@ public class TravelService {
     }
 
     @Transactional
-    public RequestTravelParticipantsDto updateTravel(RequestTravelParticipantsDto requestTravelParticipantsDto, Long userId) {
+    public TravelParticipantsDto updateTravel(RequestTravelParticipantsDto requestTravelParticipantsDto, Long userId) {
         if (!isCreator(requestTravelParticipantsDto.getId(), userId)) {
             throw new AccessDeniedException("The user does not have permission to perform this action");
         }
@@ -113,6 +113,12 @@ public class TravelService {
         Travel updatedTravel = travelMapper.mapToTravel(requestTravelParticipantsDto);
         updatedTravel.setCreator(existingTravel.getCreator());
         updatedTravel.setIsActive(existingTravel.getIsActive());
+        updatedTravel.setUsers(existingTravel.getUsers()
+                .stream()
+                .filter(userTravel ->
+                        !userTravel.getUser().getPhoneNumber()
+                                .equals(existingTravel.getCreator().getPhoneNumber()))
+                .toList());
         invitedUsers.forEach(user -> {
             UserTravel userTravel = new UserTravel()
                     .setUser(user)
@@ -120,13 +126,8 @@ public class TravelService {
                     .setIsConfirmed(false);
             updatedTravel.getUsers().add(userTravel);
         });
-        travelRepository.save(updatedTravel);
 
-        return requestTravelParticipantsDto.setParticipantPhones(
-                invitedUsers.stream()
-                        .map(User::getPhoneNumber)
-                        .toList()
-        );
+        return travelMapper.mapToTravelParticipantsDto(travelRepository.save(updatedTravel));
     }
 
     @Transactional
