@@ -75,43 +75,4 @@ public class UserController {
                 .body(userService.updateUser(updateUserDto, userDetails.getUser().getPhoneNumber())
                 );
     }
-
-
-    @ExceptionHandler(UserAlreadyExistException.class)
-    public ResponseEntity<MessageDto> handleUserAlreadyExistException(
-            UserAlreadyExistException e) {
-        return ResponseEntity
-                .status(HttpStatus.BAD_REQUEST)
-                .body(new MessageDto().setMessage(e.getMessage())
-                );
-    }
-
-    @ExceptionHandler(PasswordDoNotMatchException.class)
-    public ResponseEntity<MessageDto> handlePasswordDoNotMatchException(PasswordDoNotMatchException e) {
-        return ResponseEntity
-                .status(HttpStatus.BAD_REQUEST)
-                .body(new MessageDto().setMessage(e.getMessage())
-                );
-    }
-
-    @ExceptionHandler(MethodArgumentNotValidException.class)
-    public ResponseEntity<MessageDto> handleValidationExceptions(MethodArgumentNotValidException e) {
-        return ResponseEntity
-                .status(HttpStatus.BAD_REQUEST)
-                .body(new MessageDto()
-                        .setMessage(
-                                e.getAllErrors()
-                                        .get(0)
-                                        .getDefaultMessage()
-                        )
-                );
-    }
-
-    @ExceptionHandler(UserNotFoundException.class)
-    public ResponseEntity<MessageDto> handleUserNotFoundException(UserNotFoundException e) {
-        return ResponseEntity
-                .status(HttpStatus.BAD_REQUEST)
-                .body(new MessageDto().setMessage(e.getMessage())
-                );
-    }
 }

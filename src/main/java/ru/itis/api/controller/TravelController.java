@@ -342,32 +342,4 @@ public class TravelController {
                 curUserDetails.getUser().getId());
         return ResponseEntity.ok().build();
     }
-
-    @ExceptionHandler(OperationNotAllowedForOwnerException.class)
-    public ResponseEntity<MessageDto> handleOperationNotAllowedForOwnerException(OperationNotAllowedForOwnerException e) {
-        return ResponseEntity
-                .status(HttpStatus.CONFLICT)
-                .body(new MessageDto().setMessage(e.getMessage()));
-    }
-
-    @ExceptionHandler(NotFoundException.class)
-    public ResponseEntity<MessageDto> handleNotFoundException(NotFoundException e) {
-        return ResponseEntity
-                .status(HttpStatus.NOT_FOUND)
-                .body(new MessageDto().setMessage(e.getMessage()));
-    }
-
-    @ExceptionHandler(AccessDeniedException.class)
-    public ResponseEntity<MessageDto> handleAccessDeniedException(AccessDeniedException e) {
-        return ResponseEntity
-                .status(HttpStatus.FORBIDDEN)
-                .body(new MessageDto().setMessage(e.getMessage()));
-    }
-
-    @ExceptionHandler(UserAlreadyExistException.class)
-    public ResponseEntity<MessageDto> handleUserAlreadyExistException(UserAlreadyExistException e) {
-        return ResponseEntity
-                .status(HttpStatus.CONFLICT)
-                .body(new MessageDto().setMessage(e.getMessage()));
-    }
 }
