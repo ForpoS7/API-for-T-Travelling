@@ -10,11 +10,14 @@ import ru.itis.api.entity.Travel;
 import ru.itis.api.entity.User;
 import ru.itis.api.entity.UserTransaction;
 import ru.itis.api.exception.NotFoundException;
+import ru.itis.api.exception.UserNotFoundException;
 import ru.itis.api.mapper.TransactionMapper;
 import ru.itis.api.repository.*;
 
 import java.math.BigDecimal;
 import java.util.List;
+import java.util.Map;
+import java.util.function.Function;
 import java.util.stream.Collectors;
 
 @Service
@@ -35,9 +38,7 @@ public class TransactionService {
         if (transactions.isEmpty()) {
             throw new NotFoundException("Transactions not found");
         }
-        if (!userTravelRepository.existsByUserIdAndTravelId(userId, travelId)) {
-            throw new AccessDeniedException("The user does not have permission to perform this action");
-        }
+        validateUserAccessToTravel(userId, travelId);
         return transactions.stream().map(transactionMapper::mapToTransactionDto).toList();
     }
 
@@ -51,12 +52,11 @@ public class TransactionService {
     }
 
     @Transactional
-    public TransactionParticipantsDto saveTransaction(RequestTransactionDto requestTransactionDto,
-                                                      Long travelId,
-                                                      User creator) {
-        if (!userTravelRepository.existsByUserIdAndTravelId(creator.getId(), travelId)) {
-            throw new AccessDeniedException("The user does not have permission to perform this action");
-        }
+    public TransactionParticipantsDto createTransactionsWithParticipants(
+            RequestTransactionDto requestTransactionDto,
+            Long travelId,
+            User creator) {
+        validateUserAccessToTravel(creator.getId(), travelId);
         Travel travel = travelRepository.findById(travelId).orElseThrow(
                 () -> new NotFoundException("Travel not found")
         );
@@ -70,7 +70,7 @@ public class TransactionService {
         return transactionMapper.mapToTransactionParticipantsDto(
                 transactionRepository.save(
                         savedTransaction.setUsers(
-                                getUserTransaction(savedTransaction, requestTransactionDto.getParticipant())
+                                mapToUserTransactions(savedTransaction, requestTransactionDto.getParticipant())
                         )
                 )
         );
@@ -81,10 +81,7 @@ public class TransactionService {
             UpdateTransactionDto transactionDto, Long transactionId, Long userId) {
         Transaction transaction = transactionRepository.findById(transactionId)
                 .orElseThrow(() -> new NotFoundException("Transaction not found"));
-        if (!transaction.getCreator().getId().equals(userId) &&
-                !transaction.getTravel().getCreator().getId().equals(userId)) {
-            throw new AccessDeniedException("The user does not have permission to perform this action");
-        }
+        validateUserAccessToTravel(userId, transaction.getTravel().getId());
         if (!transaction.getTravel().getIsActive()) {
             throw new AccessDeniedException("Travel is not active");
         }
@@ -94,7 +91,7 @@ public class TransactionService {
         return transactionMapper.mapToTransactionParticipantsDto(
                 transactionRepository.save(
                         transaction.setUsers(
-                                getUserTransaction(transaction, transactionDto.getParticipant())
+                                mapToUserTransactions(transaction, transactionDto.getParticipant())
                         )
                 )
         );
@@ -104,28 +101,27 @@ public class TransactionService {
     public void deleteTransaction(Long transactionId, Long userId) {
         Transaction transaction = transactionRepository.findById(transactionId)
                 .orElseThrow(() -> new NotFoundException("Transaction not found"));
-        if (!transaction.getCreator().getId().equals(userId) &&
-                !transaction.getTravel().getCreator().getId().equals(userId)) {
-            throw new AccessDeniedException("The user does not have permission to perform this action");
-        }
+        validateUserAccessToTravel(userId, transaction.getTravel().getId());
         if (!transaction.getTravel().getIsActive()) {
             throw new AccessDeniedException("Travel is not active");
         }
         transactionRepository.delete(transaction);
     }
 
-    private List<UserTransaction> getUserTransaction(
+    private List<UserTransaction> mapToUserTransactions(
             Transaction transaction, List<RequestUserTransactionDto> userTransactionDtos) {
         List<User> participants = userRepository.findAllByPhoneNumbers(
                 userTransactionDtos.stream()
                         .map(RequestUserTransactionDto::getPhoneNumber)
                         .toList());
+        if (participants.isEmpty()) {
+            throw new UserNotFoundException("Users not found");
+        }
+        Map<String, RequestUserTransactionDto> dtoMap = userTransactionDtos.stream()
+                .collect(Collectors.toMap(RequestUserTransactionDto::getPhoneNumber, Function.identity()));
         return participants.stream()
                 .map(participant -> {
-                    RequestUserTransactionDto dto = userTransactionDtos.stream()
-                            .filter(x -> x.getPhoneNumber().equals(participant.getPhoneNumber()))
-                            .findFirst()
-                            .orElseThrow(() -> new NotFoundException("Share not found"));
+                    RequestUserTransactionDto dto = dtoMap.get(participant.getPhoneNumber());
                     BigDecimal shareAmount = dto.getShareAmount();
                     Boolean isRepaid = BigDecimal.ZERO.compareTo(shareAmount) == 0;
                     return new UserTransaction()
@@ -135,5 +131,11 @@ public class TransactionService {
                             .setShareAmount(shareAmount);
                 })
                 .collect(Collectors.toList());
+    }
+
+    public void validateUserAccessToTravel(Long userId, Long travelId) {
+        if (!userTravelRepository.existsByUserIdAndTravelId(userId, travelId)) {
+            throw new AccessDeniedException("The user does not have permission to perform this action");
+        }
     }
 }

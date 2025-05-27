@@ -11,14 +11,10 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
-import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.annotation.*;
 import ru.itis.api.dto.MessageDto;
 import ru.itis.api.dto.UpdateUserDto;
 import ru.itis.api.dto.UserDto;
-import ru.itis.api.exception.PasswordDoNotMatchException;
-import ru.itis.api.exception.UserAlreadyExistException;
-import ru.itis.api.exception.UserNotFoundException;
 import ru.itis.api.security.details.UserDetailsImpl;
 import ru.itis.api.service.UserService;
 
@@ -73,45 +69,6 @@ public class UserController {
         return ResponseEntity
                 .status(HttpStatus.OK)
                 .body(userService.updateUser(updateUserDto, userDetails.getUser().getPhoneNumber())
-                );
-    }
-
-
-    @ExceptionHandler(UserAlreadyExistException.class)
-    public ResponseEntity<MessageDto> handleUserAlreadyExistException(
-            UserAlreadyExistException e) {
-        return ResponseEntity
-                .status(HttpStatus.BAD_REQUEST)
-                .body(new MessageDto().setMessage(e.getMessage())
-                );
-    }
-
-    @ExceptionHandler(PasswordDoNotMatchException.class)
-    public ResponseEntity<MessageDto> handlePasswordDoNotMatchException(PasswordDoNotMatchException e) {
-        return ResponseEntity
-                .status(HttpStatus.BAD_REQUEST)
-                .body(new MessageDto().setMessage(e.getMessage())
-                );
-    }
-
-    @ExceptionHandler(MethodArgumentNotValidException.class)
-    public ResponseEntity<MessageDto> handleValidationExceptions(MethodArgumentNotValidException e) {
-        return ResponseEntity
-                .status(HttpStatus.BAD_REQUEST)
-                .body(new MessageDto()
-                        .setMessage(
-                                e.getAllErrors()
-                                        .get(0)
-                                        .getDefaultMessage()
-                        )
-                );
-    }
-
-    @ExceptionHandler(UserNotFoundException.class)
-    public ResponseEntity<MessageDto> handleUserNotFoundException(UserNotFoundException e) {
-        return ResponseEntity
-                .status(HttpStatus.BAD_REQUEST)
-                .body(new MessageDto().setMessage(e.getMessage())
                 );
     }
 }

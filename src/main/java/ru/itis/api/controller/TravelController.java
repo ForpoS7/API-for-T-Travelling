@@ -12,14 +12,10 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
-import org.springframework.security.access.AccessDeniedException;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.ErrorResponse;
 import org.springframework.web.bind.annotation.*;
 import ru.itis.api.dto.*;
-import ru.itis.api.exception.NotFoundException;
-import ru.itis.api.exception.OperationNotAllowedForOwnerException;
-import ru.itis.api.exception.UserAlreadyExistException;
 import ru.itis.api.security.details.UserDetailsImpl;
 import ru.itis.api.service.TravelService;
 
@@ -341,33 +337,5 @@ public class TravelController {
         travelService.leaveTravel(travelId,
                 curUserDetails.getUser().getId());
         return ResponseEntity.ok().build();
-    }
-
-    @ExceptionHandler(OperationNotAllowedForOwnerException.class)
-    public ResponseEntity<MessageDto> handleOperationNotAllowedForOwnerException(OperationNotAllowedForOwnerException e) {
-        return ResponseEntity
-                .status(HttpStatus.CONFLICT)
-                .body(new MessageDto().setMessage(e.getMessage()));
-    }
-
-    @ExceptionHandler(NotFoundException.class)
-    public ResponseEntity<MessageDto> handleNotFoundException(NotFoundException e) {
-        return ResponseEntity
-                .status(HttpStatus.NOT_FOUND)
-                .body(new MessageDto().setMessage(e.getMessage()));
-    }
-
-    @ExceptionHandler(AccessDeniedException.class)
-    public ResponseEntity<MessageDto> handleAccessDeniedException(AccessDeniedException e) {
-        return ResponseEntity
-                .status(HttpStatus.FORBIDDEN)
-                .body(new MessageDto().setMessage(e.getMessage()));
-    }
-
-    @ExceptionHandler(UserAlreadyExistException.class)
-    public ResponseEntity<MessageDto> handleUserAlreadyExistException(UserAlreadyExistException e) {
-        return ResponseEntity
-                .status(HttpStatus.CONFLICT)
-                .body(new MessageDto().setMessage(e.getMessage()));
     }
 }
