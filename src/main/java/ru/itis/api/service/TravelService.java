@@ -20,6 +20,7 @@ import ru.itis.api.repository.UserTravelRepository;
 
 import java.util.List;
 import java.util.Optional;
+import java.util.stream.Collectors;
 
 @Service
 @RequiredArgsConstructor
@@ -118,7 +119,7 @@ public class TravelService {
                 .filter(userTravel ->
                         !userTravel.getUser().getPhoneNumber()
                                 .equals(existingTravel.getCreator().getPhoneNumber()))
-                .toList());
+                .collect(Collectors.toList()));
         invitedUsers.forEach(user -> {
             UserTravel userTravel = new UserTravel()
                     .setUser(user)
