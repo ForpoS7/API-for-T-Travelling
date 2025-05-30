@@ -44,6 +44,25 @@ jobs:
         env:
           JWT_SECRET: ${{ secrets.JWT_SECRET }}
 
+      - name: Delete Old Artifacts
+        uses: actions/github-script@v6
+        id: artifact
+        with:
+          script: |
+            const res = await github.rest.actions.listArtifactsForRepo({
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+            })
+              
+            res.data.artifacts
+              .forEach(({ id }) => {
+                github.rest.actions.deleteArtifact({
+                  owner: context.repo.owner,
+                  repo: context.repo.repo,
+                  artifact_id: id,
+                })
+              })
+
       - name: Upload JAR artifact
         uses: actions/upload-artifact@v4
         with:
