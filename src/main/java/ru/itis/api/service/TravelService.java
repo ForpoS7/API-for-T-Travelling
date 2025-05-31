@@ -19,7 +19,9 @@ import ru.itis.api.repository.UserRepository;
 import ru.itis.api.repository.UserTravelRepository;
 
 import java.util.List;
+import java.util.Map;
 import java.util.Optional;
+import java.util.function.Function;
 import java.util.stream.Collectors;
 
 @Service
@@ -52,7 +54,7 @@ public class TravelService {
         }
         TravelParticipantsDto travelParticipantsDto = optionalTravelDetails.get();
         travelParticipantsDto.setParticipants(
-                userTravelRepository.findUsersByTravelIdWithoutCreator(travelId,
+                userTravelRepository.findUsersDtoByTravelIdWithoutCreator(travelId,
                         travelParticipantsDto.getCreator().getPhoneNumber())
         );
         return travelParticipantsDto;
@@ -85,14 +87,6 @@ public class TravelService {
     }
 
     @Transactional
-    public void denyTravel(Long userId, Long travelId) {
-        if (isCreator(travelId, userId)) {
-            throw new OperationNotAllowedForOwnerException("Creator cannot deny the travel");
-        }
-        userTravelRepository.deleteByUserIdAndTravelId(travelId, userId);
-    }
-
-    @Transactional
     public TravelParticipantsDto updateTravel(RequestTravelParticipantsDto requestTravelParticipantsDto, Long userId) {
         if (!isCreator(requestTravelParticipantsDto.getId(), userId)) {
             throw new AccessDeniedException("The user does not have permission to perform this action");
@@ -103,31 +97,33 @@ public class TravelService {
         }
 
         Travel existingTravel = optionalTravel.get();
-        List<String> newPhoneNumbers = requestTravelParticipantsDto.getParticipantPhones()
-                .stream()
-                .filter(phoneNumber -> existingTravel.getUsers()
-                        .stream()
-                        .noneMatch(userTravel -> userTravel.getUser().getPhoneNumber().equals(phoneNumber)))
-                .toList();
 
-        List<User> invitedUsers = userRepository.findAllByPhoneNumbers(newPhoneNumbers);
+        List<User> invitedUsers = userRepository.findAllByPhoneNumbers(requestTravelParticipantsDto.getParticipantPhones());
+
+        List<UserTravel> existingUserTravels = userTravelRepository.findUserTravelsByTravelIdWithoutCreator(requestTravelParticipantsDto.getId(),
+                existingTravel.getCreator().getPhoneNumber());
+
+        Map<String, UserTravel> existingUserTravelMap = existingUserTravels.stream()
+                .collect(Collectors.toMap(ut -> ut.getUser().getPhoneNumber(), Function.identity()));
+
         Travel updatedTravel = travelMapper.mapToTravel(requestTravelParticipantsDto);
         updatedTravel.setCreator(existingTravel.getCreator());
         updatedTravel.setIsActive(existingTravel.getIsActive());
-        updatedTravel.setUsers(existingTravel.getUsers()
-                .stream()
-                .filter(userTravel ->
-                        !userTravel.getUser().getPhoneNumber()
-                                .equals(existingTravel.getCreator().getPhoneNumber()))
-                .collect(Collectors.toList()));
         invitedUsers.forEach(user -> {
             UserTravel userTravel = new UserTravel()
                     .setUser(user)
-                    .setTravel(updatedTravel)
-                    .setIsConfirmed(false);
+                    .setTravel(updatedTravel);
+            if (existingUserTravelMap.containsKey(user.getPhoneNumber())) {
+                UserTravel existingUserTravel = existingUserTravelMap.get(user.getPhoneNumber());
+                userTravel.setIsConfirmed(existingUserTravel.getIsConfirmed());
+            } else {
+                userTravel.setIsConfirmed(false);
+            }
             updatedTravel.getUsers().add(userTravel);
         });
 
+        userTravelRepository.deleteAllByTravelIdExceptCreator(requestTravelParticipantsDto.getId(),
+                existingTravel.getCreator().getPhoneNumber());
         return travelMapper.mapToTravelParticipantsDto(travelRepository.save(updatedTravel));
     }
 
@@ -139,21 +135,22 @@ public class TravelService {
         travelRepository.deleteById(travelId);
     }
 
-    @Transactional
-    public void deleteParticipant(Long travelId, Long participantId, Long userId) {
-        if (!isCreator(travelId, userId)) {
-            throw new AccessDeniedException("The user does not have permission to perform this action");
-        }
-        if (participantId.equals(userId)) {
-            throw new OperationNotAllowedForOwnerException("Creator cannot remove himself from the travel");
-        }
-        userTravelRepository.deleteByUserIdAndTravelId(travelId, participantId);
-    }
+    // Описал в контроллере
+//    @Transactional
+//    public void deleteParticipant(Long travelId, Long participantId, Long userId) {
+//        if (!isCreator(travelId, userId)) {
+//            throw new AccessDeniedException("The user does not have permission to perform this action");
+//        }
+//        if (participantId.equals(userId)) {
+//            throw new OperationNotAllowedForOwnerException("Creator cannot remove himself from the travel");
+//        }
+//        userTravelRepository.deleteByUserIdAndTravelId(travelId, participantId);
+//    }
 
     @Transactional
-    public void leaveTravel(Long travelId, Long userId) {
+    public void removeUserFromTravel(Long travelId, Long userId, String errorMessage) {
         if (isCreator(travelId, userId)) {
-            throw new OperationNotAllowedForOwnerException("Creator cannot leave from the travel");
+            throw new OperationNotAllowedForOwnerException(errorMessage);
         }
         userTravelRepository.deleteByUserIdAndTravelId(travelId, userId);
     }

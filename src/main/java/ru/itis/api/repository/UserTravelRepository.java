@@ -5,6 +5,7 @@ import org.springframework.data.jpa.repository.Modifying;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
 import ru.itis.api.dto.UserDto;
+import ru.itis.api.entity.User;
 import ru.itis.api.entity.UserTravel;
 
 import java.util.List;
@@ -19,7 +20,11 @@ public interface UserTravelRepository extends JpaRepository<UserTravel, Long> {
     FROM UserTravel u
     WHERE u.travel.id = :travelId AND u.user.phoneNumber != :creatorPhoneNumber
     """)
-    List<UserDto> findUsersByTravelIdWithoutCreator(@Param("travelId") Long travelId, String creatorPhoneNumber);
+    List<UserDto> findUsersDtoByTravelIdWithoutCreator(@Param("travelId") Long travelId, String creatorPhoneNumber);
+
+    @Query("FROM UserTravel ut" +
+            "    WHERE ut.travel.id = :travelId AND ut.user.phoneNumber != :creatorPhoneNumber")
+    List<UserTravel> findUserTravelsByTravelIdWithoutCreator(@Param("travelId") Long travelId, String creatorPhoneNumber);
 
     @Modifying
     @Query("UPDATE UserTravel ut " +
@@ -34,6 +39,10 @@ public interface UserTravelRepository extends JpaRepository<UserTravel, Long> {
             "WHERE ut.user.id = :participantId AND ut.travel.id = :travelId")
     void deleteByUserIdAndTravelId(@Param("travelId") Long travelId,
                                    @Param("participantId") Long participantId);
+
+    @Modifying
+    @Query("DELETE FROM UserTravel ut WHERE ut.travel.id = :travelId AND ut.user.phoneNumber != :creatorPhoneNumber")
+    void deleteAllByTravelIdExceptCreator(@Param("travelId") Long travelId, @Param("creatorPhoneNumber") String creatorPhoneNumber);
 
     boolean existsByUserIdAndTravelId(Long userId, Long travelId);
 }

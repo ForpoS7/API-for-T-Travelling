@@ -129,7 +129,7 @@ public class TravelController {
                     mediaType = MediaType.APPLICATION_JSON_VALUE,
                     schema = @Schema(implementation = MessageDto.class),
                     examples = @ExampleObject(value = "{\"message\": \"Unauthorized\"}")))
-    @PostMapping("/create")
+    @PostMapping
     public ResponseEntity<TravelParticipantsDto> createTravel(@Valid @RequestBody RequestTravelDto requestTravel,
                                                @AuthenticationPrincipal UserDetailsImpl curUserDetails) {
         TravelParticipantsDto travelParticipantsDto = travelService.saveTravel(requestTravel,
@@ -192,7 +192,10 @@ public class TravelController {
                     example = "1")
             @PathVariable Long travelId,
             @AuthenticationPrincipal UserDetailsImpl curUserDetails) {
-        travelService.denyTravel(curUserDetails.getUser().getId(), travelId);
+        travelService.removeUserFromTravel(
+                curUserDetails.getUser().getId(),
+                travelId,
+                "Creator cannot deny the travel");
         return ResponseEntity.ok().build();
     }
 
@@ -269,46 +272,47 @@ public class TravelController {
         return ResponseEntity.ok().build();
     }
 
-    @Operation(summary = "Remove a participant from a travel",
-            description = "Removes a participant from a specific travel. "
-                    + "The method requires authentication and validates that the authenticated user is the creator of the travel. "
-                    + "If the travel or participant does not exist, no error is returned, and the operation is considered successful.")
-    @ApiResponse(responseCode = "200",
-            description = "Successful removal of the participant (or the travel and participant did not exist)")
-    @ApiResponse(responseCode = "401",
-            description = "Unauthorized - User is not authenticated",
-            content = @Content(
-                    mediaType = MediaType.APPLICATION_JSON_VALUE,
-                    schema = @Schema(implementation = MessageDto.class),
-                    examples = @ExampleObject(value = "{\"message\": \"Unauthorized\"}")))
-    @ApiResponse(responseCode = "403",
-            description = "Forbidden - The user does not have permission to remove the participant",
-            content = @Content(
-                    mediaType = MediaType.APPLICATION_JSON_VALUE,
-                    schema = @Schema(implementation = MessageDto.class),
-                    examples = @ExampleObject(value = "{\"message\": \"The user does not have permission to perform this action\"}")))
-    @ApiResponse(responseCode = "409",
-            description = "Conflict - The creator cannot remove themselves from the travel",
-            content = @Content(
-                    mediaType = MediaType.APPLICATION_JSON_VALUE,
-                    schema = @Schema(implementation = MessageDto.class),
-                    examples = @ExampleObject(value = "{\"message\": \"Creator cannot remove himself from the travel\"}")))
-    @DeleteMapping("/remove/{travelId}")
-    public ResponseEntity<Void> deleteParticipant(
-            @Parameter(description = "Id of the travel",
-                    required = true,
-                    example = "1")
-            @PathVariable Long travelId,
-            @Parameter(description = "Id of the participant to remove",
-                    required = true,
-                    example = "2")
-            @RequestParam("userId") Long participantId,
-            @AuthenticationPrincipal UserDetailsImpl curUserDetails) {
-        travelService.deleteParticipant(travelId,
-                participantId,
-                curUserDetails.getUser().getId());
-        return ResponseEntity.ok().build();
-    }
+    // Мобильщики сказали всё в update делать (временно на всякий закомментирую, вдруг скажут вернуть)
+//    @Operation(summary = "Remove a participant from a travel",
+//            description = "Removes a participant from a specific travel. "
+//                    + "The method requires authentication and validates that the authenticated user is the creator of the travel. "
+//                    + "If the travel or participant does not exist, no error is returned, and the operation is considered successful.")
+//    @ApiResponse(responseCode = "200",
+//            description = "Successful removal of the participant (or the travel and participant did not exist)")
+//    @ApiResponse(responseCode = "401",
+//            description = "Unauthorized - User is not authenticated",
+//            content = @Content(
+//                    mediaType = MediaType.APPLICATION_JSON_VALUE,
+//                    schema = @Schema(implementation = MessageDto.class),
+//                    examples = @ExampleObject(value = "{\"message\": \"Unauthorized\"}")))
+//    @ApiResponse(responseCode = "403",
+//            description = "Forbidden - The user does not have permission to remove the participant",
+//            content = @Content(
+//                    mediaType = MediaType.APPLICATION_JSON_VALUE,
+//                    schema = @Schema(implementation = MessageDto.class),
+//                    examples = @ExampleObject(value = "{\"message\": \"The user does not have permission to perform this action\"}")))
+//    @ApiResponse(responseCode = "409",
+//            description = "Conflict - The creator cannot remove themselves from the travel",
+//            content = @Content(
+//                    mediaType = MediaType.APPLICATION_JSON_VALUE,
+//                    schema = @Schema(implementation = MessageDto.class),
+//                    examples = @ExampleObject(value = "{\"message\": \"Creator cannot remove himself from the travel\"}")))
+//    @DeleteMapping("/remove/{travelId}")
+//    public ResponseEntity<Void> deleteParticipant(
+//            @Parameter(description = "Id of the travel",
+//                    required = true,
+//                    example = "1")
+//            @PathVariable Long travelId,
+//            @Parameter(description = "Id of the participant to remove",
+//                    required = true,
+//                    example = "2")
+//            @RequestParam("userId") Long participantId,
+//            @AuthenticationPrincipal UserDetailsImpl curUserDetails) {
+//        travelService.deleteParticipant(travelId,
+//                participantId,
+//                curUserDetails.getUser().getId());
+//        return ResponseEntity.ok().build();
+//    }
 
     @Operation(summary = "Leave a travel",
             description = "Allows the authenticated user to leave a specific travel. "
@@ -334,8 +338,9 @@ public class TravelController {
                     example = "1")
             @PathVariable Long travelId,
             @AuthenticationPrincipal UserDetailsImpl curUserDetails) {
-        travelService.leaveTravel(travelId,
-                curUserDetails.getUser().getId());
+        travelService.removeUserFromTravel(travelId,
+                curUserDetails.getUser().getId(),
+                "Creator cannot leave from the travel");
         return ResponseEntity.ok().build();
     }
 }
