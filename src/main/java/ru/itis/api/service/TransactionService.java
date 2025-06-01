@@ -15,6 +15,7 @@ import ru.itis.api.mapper.TransactionMapper;
 import ru.itis.api.repository.*;
 
 import java.math.BigDecimal;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 import java.util.function.Function;
@@ -36,7 +37,7 @@ public class TransactionService {
         }
         List<Transaction> transactions = transactionRepository.findAllByTravelId(travelId);
         if (transactions.isEmpty()) {
-            throw new NotFoundException("Transactions not found");
+            return new ArrayList<>();
         }
         validateUserAccessToTravel(userId, travelId);
         return transactions.stream().map(transactionMapper::mapToTransactionDto).toList();
