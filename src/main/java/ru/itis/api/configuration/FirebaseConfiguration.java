@@ -13,7 +13,7 @@ import java.io.IOException;
 public class FirebaseConfiguration {
     @PostConstruct
     public void initialize() throws IOException {
-        FileInputStream serviceAccount = new FileInputStream("src/main/resources/firebase-service-account.json");
+        FileInputStream serviceAccount = new FileInputStream("/root/firebase-service-account.json");
 
         FirebaseOptions options = FirebaseOptions.builder()
                 .setCredentials(GoogleCredentials.fromStream(serviceAccount))
