@@ -174,5 +174,6 @@ jobs:
             -e DATABASE_USERNAME=${{ secrets.DATABASE_USERNAME }} \
             -e DATABASE_URL=${{ secrets.DATABASE_URL }} \
             -e JWT_SECRET=${{ secrets.JWT_SECRET }} \
+            -e FIREBASE_CONFIG_JSON=\"$(echo '${{ secrets.FIREBASE_CONFIG_JSON }}' | jq -c '.')\" \
             -p 8080:8080 \
             ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}:${GITHUB_SHA::8}"
