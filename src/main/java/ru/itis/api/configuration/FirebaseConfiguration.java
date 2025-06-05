@@ -8,6 +8,7 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Configuration;
 
 import java.io.ByteArrayInputStream;
+import java.io.FileInputStream;
 import java.io.IOException;
 
 @Configuration
@@ -17,6 +18,12 @@ public class FirebaseConfiguration {
 
     @PostConstruct
     public void initialize() throws IOException {
+//        FileInputStream serviceAccount = new FileInputStream("src/main/resources/firebase-service-account.json");
+
+//        FirebaseOptions options = FirebaseOptions.builder()
+//                .setCredentials(GoogleCredentials.fromStream(serviceAccount))
+//                .build();
+
         FirebaseOptions options = FirebaseOptions.builder()
                 .setCredentials(GoogleCredentials.fromStream(
                         new ByteArrayInputStream(firebaseConfigJson.getBytes())
