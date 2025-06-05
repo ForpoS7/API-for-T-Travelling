@@ -43,6 +43,7 @@ jobs:
         run: mvn test
         env:
           JWT_SECRET: ${{ secrets.JWT_SECRET }}
+          FIREBASE_CONFIG_JSON: ${{ secrets.FIREBASE_CONFIG_JSON }}
 
       - name: Delete Old Artifacts
         uses: actions/github-script@v6
@@ -172,5 +173,6 @@ jobs:
             -e DATABASE_USERNAME=${{ secrets.DATABASE_USERNAME }} \
             -e DATABASE_URL=${{ secrets.DATABASE_URL }} \
             -e JWT_SECRET=${{ secrets.JWT_SECRET }} \
+            -e FIREBASE_CONFIG_JSON=${{ secrets.FIREBASE_CONFIG_JSON }} \
             -p 8080:8080 \
             ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}:${GITHUB_SHA::8}"

@@ -25,4 +25,9 @@ public interface UserRepository extends JpaRepository<User, Long> {
 
     @Query("SELECT u FROM User u WHERE u.phoneNumber IN :phoneNumbers")
     List<User> findAllByPhoneNumbers(@Param("phoneNumbers") List<String> phoneNumbers);
+
+    @Query("UPDATE User u SET u.deviceToken = :deviceToken WHERE u.id = :id")
+    @Modifying
+    @Transactional
+    void updateDeviceTokenById(Long id, String deviceToken);
 }

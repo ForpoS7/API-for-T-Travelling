@@ -9,6 +9,8 @@ mvnw.cmd
 .mvn
 *.log
 
+### Firebase ###
+firebase-service-account.json
 
 ### STS ###
 .apt_generated
