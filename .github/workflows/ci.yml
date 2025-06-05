@@ -8,8 +8,6 @@ on:
     branches:
       - '*'
 
-
-
 env:
   REGISTRY: ghcr.io
   IMAGE_NAME: ryangoslingisnotdead/api-for-t-travelling
@@ -43,7 +41,6 @@ jobs:
         run: mvn test
         env:
           JWT_SECRET: ${{ secrets.JWT_SECRET }}
-          FIREBASE_CONFIG_JSON: ${{ secrets.FIREBASE_CONFIG_JSON }}
 
       - name: Delete Old Artifacts
         uses: actions/github-script@v6
@@ -97,12 +94,6 @@ jobs:
 
       - name: Build with Maven
         run: mvn -B clean package -DskipTests
-
-#      - name: Run Tests
-#        run: mvn test
-#        env:
-#          JWT_SECRET: ${{ secrets.JWT_SECRET }}
-#          FIREBASE_CONFIG_JSON: ${{ secrets.FIREBASE_CONFIG_JSON }}
 
 #      - name: Delete Old Artifacts
 #        uses: actions/github-script@v6
@@ -165,7 +156,6 @@ jobs:
 
       - name: Deploy new Docker image on VPS
         run: |
-          ESCAPED_FIREBASE_CONFIG_JSON=$(echo "${{ secrets.FIREBASE_CONFIG_JSON }}" | sed 's/"/\\"/g' | sed 's/\\n/\\\\n/g')
           ssh -o StrictHostKeyChecking=no "${{ secrets.VPS_USER }}@${{ secrets.VPS_HOST }}" \
           "docker run -d \
             --name ${{ env.PROJECT_NAME }} \
@@ -175,6 +165,6 @@ jobs:
             -e DATABASE_USERNAME=${{ secrets.DATABASE_USERNAME }} \
             -e DATABASE_URL=${{ secrets.DATABASE_URL }} \
             -e JWT_SECRET=${{ secrets.JWT_SECRET }} \
-            -e FIREBASE_CONFIG_JSON='$ESCAPED_FIREBASE_CONFIG_JSON' \
+            -v /root/firebase-service-account.json:/root/firebase-service-account.json \
             -p 8080:8080 \
             ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}:${GITHUB_SHA::8}"
