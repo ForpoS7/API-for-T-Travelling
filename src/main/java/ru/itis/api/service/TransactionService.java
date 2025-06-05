@@ -145,6 +145,7 @@ public class TransactionService {
         Map<String, RequestUserTransactionDto> dtoMap = userTransactionDtos.stream()
                 .collect(Collectors.toMap(RequestUserTransactionDto::getPhoneNumber, Function.identity()));
         List<UserTransaction> oldUserTransaction = transaction.getUsers();
+        List<UserTransaction> newUserTransaction = new ArrayList<>();
         for (UserTransaction userTransaction : oldUserTransaction) {
             if (dtoMap.containsKey(userTransaction.getUser().getPhoneNumber())) {
                 RequestUserTransactionDto dto = dtoMap.get(userTransaction.getUser().getPhoneNumber());
@@ -152,10 +153,11 @@ public class TransactionService {
                 Boolean isRepaid = BigDecimal.ZERO.compareTo(shareAmount) == 0;
                 userTransaction.setShareAmount(shareAmount);
                 userTransaction.setIsRepaid(isRepaid);
+                newUserTransaction.add(userTransaction);
             } else {
-                oldUserTransaction.add(userTransaction);
+                newUserTransaction.add(userTransaction);
             }
         }
-        return oldUserTransaction;
+        return newUserTransaction;
     }
 }
