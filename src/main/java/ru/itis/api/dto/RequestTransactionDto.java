@@ -31,7 +31,6 @@ public class RequestTransactionDto {
     private String description;
 
     @Schema(description = "Date and time when the transaction was created", example = "2025-04-05T10:00:00")
-    @PastOrPresent(message = "Date of begin must be in the present or past")
     private LocalDateTime createdAt;
 
     @Schema(description = "List of users involved in this transaction with their shares")
