@@ -30,6 +30,7 @@ public class TransactionService {
     private final UserTravelRepository userTravelRepository;
     private final UserRepository userRepository;
     private final TransactionMapper transactionMapper;
+    private final NotificationService notificationService;
 
     public List<TransactionDto> getTransactions(Long travelId, Long userId) {
         if (travelRepository.findById(travelId).isEmpty()) {
@@ -138,6 +139,12 @@ public class TransactionService {
         if (!userTravelRepository.existsByUserIdAndTravelId(userId, travelId)) {
             throw new AccessDeniedException("The user does not have permission to perform this action");
         }
+    }
+
+    public void remindPayment(Long transactionId) {
+        Transaction transaction = transactionRepository.findById(transactionId)
+                .orElseThrow(() -> new NotFoundException("Transaction not found"));
+        notificationService.notifyPayment(transaction);
     }
 
     private List<UserTransaction> updateUserTransaction(

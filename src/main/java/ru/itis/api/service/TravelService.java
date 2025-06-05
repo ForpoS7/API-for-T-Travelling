@@ -32,6 +32,7 @@ public class TravelService {
     private final TravelRepository travelRepository;
     private final UserTravelRepository userTravelRepository;
     private final TravelMapper travelMapper;
+    private final NotificationService notificationService;
 
     public List<TravelDto> getActiveTravels(Long userId) {
         List<Travel> travels = travelRepository.findTravelsByUserIdAndStatus(userId, true, true);
@@ -78,6 +79,7 @@ public class TravelService {
         });
 
         Travel madeTravel = travelRepository.save(savedTravel);
+        notificationService.notifyConfirmTravel(savedTravel);
         return travelMapper.mapToTravelParticipantsDto(madeTravel);
     }
 
@@ -124,6 +126,7 @@ public class TravelService {
 
         userTravelRepository.deleteAllByTravelIdExceptCreator(requestTravelParticipantsDto.getId(),
                 existingTravel.getCreator().getPhoneNumber());
+        notificationService.notifyConfirmTravel(updatedTravel);
         return travelMapper.mapToTravelParticipantsDto(travelRepository.save(updatedTravel));
     }
 

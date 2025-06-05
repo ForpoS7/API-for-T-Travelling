@@ -41,4 +41,6 @@ public class User {
 
     @Enumerated(STRING)
     private Role role;
+
+    private String deviceToken;
 }

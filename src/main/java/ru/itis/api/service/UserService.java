@@ -39,4 +39,8 @@ public class UserService {
         userRepository.save(user);
         return updateUserDto;
     }
+
+    public void updateDeviceToken(String deviceToken, Long userId) {
+        userRepository.updateDeviceTokenById(userId, deviceToken);
+    }
 }

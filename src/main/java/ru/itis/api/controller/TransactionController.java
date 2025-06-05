@@ -93,4 +93,16 @@ public class TransactionController {
         transactionService.deleteTransaction(transactionId, curUserDetails.getUser().getId());
         return ResponseEntity.ok().build();
     }
+
+    @Operation(summary = "Reminder to debtors about payment",
+            description = "Sends a notification to transaction participants with the status isRepaid == false")
+    @ApiResponse(responseCode = "200", description = "Worked successfully " +
+            "(if the user does not have a device token set, " +
+            "the notification will not be sent)")
+    @ApiResponse(responseCode = "404", description = "Transaction not found", content = @Content)
+    @GetMapping("/remind/{transactionId}")
+    public ResponseEntity<Void> remindPayment(@PathVariable Long transactionId) {
+        transactionService.remindPayment(transactionId);
+        return ResponseEntity.ok().build();
+    }
 }
