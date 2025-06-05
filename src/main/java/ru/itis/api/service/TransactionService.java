@@ -92,7 +92,7 @@ public class TransactionService {
         return transactionMapper.mapToTransactionParticipantsDto(
                 transactionRepository.save(
                         transaction.setUsers(
-                                mapToUserTransactions(transaction, transactionDto.getParticipant())
+                                updateUserTransaction(transaction, transactionDto.getParticipant())
                         )
                 )
         );
@@ -138,5 +138,24 @@ public class TransactionService {
         if (!userTravelRepository.existsByUserIdAndTravelId(userId, travelId)) {
             throw new AccessDeniedException("The user does not have permission to perform this action");
         }
+    }
+
+    private List<UserTransaction> updateUserTransaction(
+            Transaction transaction, List<RequestUserTransactionDto> userTransactionDtos) {
+        Map<String, RequestUserTransactionDto> dtoMap = userTransactionDtos.stream()
+                .collect(Collectors.toMap(RequestUserTransactionDto::getPhoneNumber, Function.identity()));
+        List<UserTransaction> oldUserTransaction = transaction.getUsers();
+        for (UserTransaction userTransaction : oldUserTransaction) {
+            if (dtoMap.containsKey(userTransaction.getUser().getPhoneNumber())) {
+                RequestUserTransactionDto dto = dtoMap.get(userTransaction.getUser().getPhoneNumber());
+                BigDecimal shareAmount = dto.getShareAmount();
+                Boolean isRepaid = BigDecimal.ZERO.compareTo(shareAmount) == 0;
+                userTransaction.setShareAmount(shareAmount);
+                userTransaction.setIsRepaid(isRepaid);
+            } else {
+                oldUserTransaction.add(userTransaction);
+            }
+        }
+        return oldUserTransaction;
     }
 }
