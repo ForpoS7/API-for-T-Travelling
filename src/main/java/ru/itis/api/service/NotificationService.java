@@ -22,11 +22,18 @@ public class NotificationService {
                 .map(UserTransaction::getUser)
                 .forEach(user -> {
                     try {
-                        sendStandardNotification(
+                        sendNotificationWithData(
                                 user.getDeviceToken(),
                                 "Payment reminder",
                                 "Pay off the debt for " + transaction.getCategory()
-                        );
+                                        + " during " + transaction.getTravel().getName(),
+                                Map.of(
+                                        "title", "Payment reminder",
+                                        "body", "Pay off the debt for " + transaction.getCategory()
+                                                + " during " + transaction.getTravel().getName(),
+                                        "travelName", String.valueOf(transaction.getTravel().getName()),
+                                        "travelId", String.valueOf(transaction.getTravel().getId())
+                                ));
                     } catch (Exception e) {
                         log.error("Failed to send notification to user with device token: {}", user.getDeviceToken(), e);
                     }
@@ -48,6 +55,11 @@ public class NotificationService {
                                         + travel.getCreator().getLastName()
                                         + " to take part in a new travel.",
                                 Map.of(
+                                        "title", "Confirm participation in " + travel.getName() + ".",
+                                        "body", "You have been invited by a " + travel.getCreator().getFirstName()
+                                                + " "
+                                                + travel.getCreator().getLastName()
+                                                + " to take part in a new travel.",
                                         "travelId", String.valueOf(travel.getId())
                                 ));
                     } catch (Exception e) {
