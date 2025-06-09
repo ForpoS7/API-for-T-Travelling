@@ -15,7 +15,7 @@ public interface TravelRepository extends JpaRepository<Travel, Long> {
             "FROM Travel t " +
             "JOIN UserTravel ut ON t.id = ut.travel.id " +
             "WHERE ut.user.id = :userId " +
-            "AND ut.isConfirmed = :isConfirmed " +
+//            "AND ut.isConfirmed = :isConfirmed " +
             "AND t.isActive = :isActive")
     List<Travel> findTravelsByUserIdAndStatus(@Param("userId") Long userId,
                                               @Param("isConfirmed") Boolean isConfirmed,
