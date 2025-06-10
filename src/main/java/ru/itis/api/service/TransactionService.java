@@ -58,7 +58,7 @@ public class TransactionService {
             RequestTransactionDto requestTransactionDto,
             Long travelId,
             User creator) {
-//        validateUserAccessToTravel(creator.getId(), travelId);
+        validateUserAccessToTravel(creator.getId(), travelId);
         Travel travel = travelRepository.findById(travelId).orElseThrow(
                 () -> new NotFoundException("Travel not found")
         );
