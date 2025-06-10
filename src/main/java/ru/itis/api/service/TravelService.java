@@ -14,6 +14,7 @@ import ru.itis.api.entity.UserTravel;
 import ru.itis.api.exception.NotFoundException;
 import ru.itis.api.exception.OperationNotAllowedForOwnerException;
 import ru.itis.api.mapper.TravelMapper;
+import ru.itis.api.repository.TransactionRepository;
 import ru.itis.api.repository.TravelRepository;
 import ru.itis.api.repository.UserRepository;
 import ru.itis.api.repository.UserTravelRepository;
@@ -28,6 +29,7 @@ import java.util.stream.Collectors;
 @RequiredArgsConstructor
 public class TravelService {
 
+    private final TransactionRepository transactionRepository;
     private final UserRepository userRepository;
     private final TravelRepository travelRepository;
     private final UserTravelRepository userTravelRepository;
@@ -135,6 +137,7 @@ public class TravelService {
         if (!isCreator(travelId, userId)) {
             throw new AccessDeniedException("The user does not have permission to perform this action");
         }
+        transactionRepository.deleteByTravelId(travelId);
         travelRepository.deleteById(travelId);
     }
 
